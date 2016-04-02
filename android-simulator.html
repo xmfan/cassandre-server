@@ -5,8 +5,10 @@
   </head>
   <body>
   	<form action="">
-      <input id="x" autocomplete="off" />
-      <input id="y" autocomplete="off" />
+      id:<input id="id" autocomplete="off" />
+      x:<input id="x" autocomplete="off" />
+      y:<input id="y" autocomplete="off" />
+      r:<input id="r" autocomplete="off" />
       <button>Send</button>
     </form>
   	<script src="/socket.io/socket.io.js"></script>
@@ -14,7 +16,11 @@
   	<script>
   		var socket = io('/android');
   		$('form').submit(function(){
-      		socket.emit('alert', { x: $('#x').val(), y: $('#y').val() });
+      		socket.emit('alert', { x: $('#x').val(), 
+                                  y: $('#y').val(), 
+                                  id: $('#id').val(), 
+                                  r: $('#r').val()
+                                });
       		console.log('in form submits');
     		// $('#x').val(''); $('#y').val('');
       		return false;
