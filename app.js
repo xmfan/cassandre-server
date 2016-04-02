@@ -3,18 +3,17 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 app.get('/', function(req, res){
-  res.sendfile('index.html');
+  res.sendFile(__dirname + '/public/index.html');
 });
 
 app.get('/android-simulator', function(req, res){
-  res.sendfile('android-simulator.html');
+  res.sendFile(__dirname + '/public/android-simulator.html');
 });
 
 var dashboard = io
 	.of('/dashboard')
 	.on('connection', function(socket){
 		console.log('a user connected');
-
 	});
 
 var android = io
