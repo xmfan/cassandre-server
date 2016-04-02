@@ -34,6 +34,9 @@
       $('#m').val('');
         return false;
       });
+      socket.on('remove-marker', function(ip){
+        markers[ip].setMap(null);
+      });
       socket.on('map-update', function(msg){
         latLng = {lat: parseFloat(msg.x), lng: parseFloat(msg.y)};
 
