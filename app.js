@@ -14,15 +14,22 @@ var dashboard = io
 	.of('/dashboard')
 	.on('connection', function(socket){
 		console.log('a user connected');
+		dashboard.emit('remove-marker');
 	});
 
 var android = io
 	.of('/android')
 	.on('connection', function(socket){
 		console.log('an android device has connected');
-		socket.on('alert', function(position){
+		var ip;
+		socket.on('alert', function(data){
 			console.log('an android device has submitted an alert');
-			dashboard.emit('map-update', position);
+			ip = data.id;
+			dashboard.emit('map-update', data);
+		});
+		socket.on('disconnect', function(data){
+			console.log('remove marker with ip: ' + ip);
+			dashboard.emit('remove-marker', ip);
 		});
 	});
 

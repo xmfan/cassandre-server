@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Cassandre Server</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="map"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+
+    <script>
+      var map;
+      var markers = {};
+      var latLng; 
+
+      var socket = io('/dashboard');
+      $('form').submit(function(){
+        socket.emit('test', $('#m').val());
+      $('#m').val('');
+        return false;
+      });
+
+      socket.on('remove-marker', function(){
+        console.log('remove marker');
+        //markers[ip].setMap(null);
+      });
+
+      socket.on('map-update', function(msg){
+        latLng = {lat: parseFloat(msg.x), lng: parseFloat(msg.y)};
+
+        if (markers[msg.id] != undefined)
+          markers[msg.id].setCenter(latLng)
+          //markers[msg.id].setPosition(latLng);
+        else
+          /*markers[msg.id] = new google.maps.Marker({
+              position: latLng,
+              map: map,
+              draggable: true
+          }); */
+          markers[msg.id] = new google.maps.Circle({
+              center: latLng,
+              map: map,
+              strokeColor: '#FF0000',
+              strokeOpacity: 0.8,
+              strokeWeight: 1,
+              fillColor: '#FF0000',
+              fillOpacity: 0.35,
+              radius: 100
+          });
+
+        console.log('received message');
+      });
+
+
+
+      var styles = [
+        {
+          stylers: [
+            { hue: "#0080ff" },
+            { saturation: -20 }
+          ]
+        },{
+          featureType: "road",
+          elementType: "geometry",
+          stylers: [
+            { lightness: 100 },
+            { visibility: "simplified" }
+          ]
+        },{
+          featureType: "road",
+          elementType: "labels",
+          stylers: [
+            { visibility: "off" }
+          ]
+        }
+      ];
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 40.3503270, lng: -74.6526850},
+          zoom: 15,
+          styles: styles
+        });
+
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWwRebpis1VIpthnXhsr8VF5mFCUhwrGg&callback=initMap" async defer></script>
+
+  </body>
+</html>
