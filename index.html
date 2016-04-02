@@ -2,39 +2,63 @@
 <html>
   <head>
     <title>Cassandre Server</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-  <script>
-    var socket = io('/dashboard');
-    $('form').submit(function(){
-      socket.emit('test', $('#m').val());
-    $('#m').val('');
-      return false;
-    });
-    socket.on('map-update', function(msg){
-      $('#messages').append($('<li>').text('x:' + msg.x + ', y:' + msg.y));
-      console.log('received message');
-    });
-  </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDeTJphppVv0-uKeof-Ng0fAxGRkvzLfw&callback=initMap"
-    async defer></script>
-  
+    <div id="map"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+
+    <script>
+      var map;
+      var markers = {};
+      var latLng; 
+
+      var socket = io('/dashboard');
+      $('form').submit(function(){
+        socket.emit('test', $('#m').val());
+      $('#m').val('');
+        return false;
+      });
+      socket.on('map-update', function(msg){
+        $('#messages').append($('<li>').text('x:' + msg.x + ', y:' + msg.y));
+        
+        latLng = {lat: parseFloat(msg.x), lng: parseFloat(msg.y)};
+
+        if (markers[msg.id] != undefined)
+          markers[msg.id].setPosition(latLng);
+        else
+          markers[msg.id] = new google.maps.Marker({
+              position: latLng,
+              map: map,
+              draggable: true
+          });
+
+        console.log('received message');
+      });
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 40.3503270, lng: -74.6526860},
+          zoom: 8
+        });
+      }
+
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWwRebpis1VIpthnXhsr8VF5mFCUhwrGg&callback=initMap" async defer></script>
+
   </body>
 </html>
