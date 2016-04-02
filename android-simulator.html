@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+  	<title>Android Simulator</title>
+  </head>
+  <body>
+  	<form action="">
+      <input id="x" autocomplete="off" />
+      <input id="y" autocomplete="off" />
+      <button>Send</button>
+    </form>
+  	<script src="/socket.io/socket.io.js"></script>
+  	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  	<script>
+  		var socket = io('/android');
+  		$('form').submit(function(){
+      		socket.emit('alert', { x: $('#x').val(), y: $('#y').val() });
+      		console.log('in form submits');
+    		// $('#x').val(''); $('#y').val('');
+      		return false;
+    	});
+  	</script>
+  </body>
+</html>
