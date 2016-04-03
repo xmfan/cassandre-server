@@ -50,7 +50,7 @@ android = io
       noise.lng /= count;
       console.log(noise);
 
-      if (count > 1) {
+      if (count > 2) {
         console.log('3 ip in the buffer');
         dashboard.emit('noise-update', noise);
         //emit coordinates to android
