@@ -140,7 +140,7 @@
 
         soundSources[counter] = source;
 
-        var log = '<tr><td>Suspicious sound '+counter.id+' detected at: '+counter.position.lng+', '+counter.position.lat+'</td></tr>';
+        var log = '<tr><td>Suspicious sound '+counter.id+' detected at: '+data.lng+', '+data.lat+'</td></tr>';
         $('#logs tbody').append(log);
 
       });
@@ -218,7 +218,7 @@
       }
 
       function clearSource() {
-        source.setMap(null);
+        soundSources[counter].setMap(null);
       }
       function issueAlert(){
         console.log('issued alert');
