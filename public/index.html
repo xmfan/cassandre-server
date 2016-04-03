@@ -22,13 +22,14 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWwRebpis1VIpthnXhsr8VF5mFCUhwrGg&callback=initMap" async defer></script>
     <script>
       var map;
       var markers = {};
       var soundSources = {};
       var counter = 0;
       var infowindow;
+
 
       var socket = io('/dashboard');
       $('form').submit(function(){
@@ -49,7 +50,15 @@
         }
 
         counter++;
-
+        var image = {
+          url: 'http://i.imgur.com/fyC7e1w.png',
+          // This marker is 20 pixels wide by 32 pixels high.
+          size: new google.maps.Size(64, 64),
+          // The origin for this image is (0, 0).
+          origin: new google.maps.Point(0, 0),
+          // The anchor for this image is the base of the flagpole at (0, 32).
+          anchor: new google.maps.Point(0, 0)
+        };
         var deleteButton = '<button id="deleteButton" data-id="' + counter + '">Clear</button>';
         var latLng = {lat: parseFloat(data.lat), lng: parseFloat(data.lng)};
         var source = new google.maps.Marker({
@@ -57,15 +66,7 @@
           position: latLng,
           map: map,
           draggable: false,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 10,
-            strokeColor: '#ff00ff',
-            strokeOpacity: 0.8,
-            strokeWeight: 1,
-            fillColor: '#ff00ff',
-            fillOpacity: 0.35
-          }
+          icon: image
         });
 
         google.maps.event.addListener(source, 'rightclick', function () {
@@ -84,14 +85,15 @@
           markers[data.id].setCenter(latLng)
         else
           markers[data.id] = new google.maps.Circle({
-              center: latLng,
-              map: map,
-              strokeColor: '#6600ff',
-              strokeOpacity: 0.8,
-              strokeWeight: 1,
-              fillColor: '#6600ff',
-              fillOpacity: 0.35,
-              radius: 3
+            center: latLng,
+            position: latLng,
+            map: map,
+            strokeColor: "#84A8FC",
+            strokeOpacity: 0.8,
+            strokeWeight: 1,
+            fillColor: "#84A8FC",
+            fillOpacity: 0.35,
+            radius: 3
           });
 
         console.log('received message');
@@ -100,7 +102,7 @@
       var styles = [
         {
           stylers: [
-            { hue: "#0080ff" },
+            { hue: "#FFD278"},
             { saturation: -20 }
           ]
         },{
@@ -137,8 +139,9 @@
         });
 
       }
+
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWwRebpis1VIpthnXhsr8VF5mFCUhwrGg&callback=initMap" async defer></script>
+
 
   </body>
 </html>
