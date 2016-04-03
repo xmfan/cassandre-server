@@ -45,6 +45,10 @@
       position:relative;
       left:5.2%;
     }
+
+    #logs {
+      margin-top: 10px;
+    }
     </style>
   </head>
   <body>
@@ -68,6 +72,15 @@
 
     <div id="map"></div>
 
+    <div id="logs" class="col-xs-12">
+      <table class="table table-striped">
+        <thead>
+          <h4>Logs</h4>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
@@ -97,7 +110,6 @@
       });
 
       socket.on('noise-update', function(data){
-        console.log('noise-update');
         for (var source in soundSources) {
           var pos = soundSources[source].getPosition();
           if ( Math.abs(pos.lat() - data.lat) < 0.0001 && Math.abs(pos.lng() - data.lng) < 0.0001 ) return;
@@ -128,6 +140,9 @@
 
         soundSources[counter] = source;
 
+        var log = '<tr><td>Suspicious sound '+counter.id+' detected at: '+counter.position.lng+', '+counter.position.lat+'</td></tr>';
+        $('#logs tbody').append(log);
+
       });
 
       socket.on('map-update', function(data){
@@ -156,8 +171,8 @@
 
 
         // }
-
-        console.log('received message');
+        var log = '<tr><td>Location updated for '+data.id+' to '+data.lat+', '+data.lng+'</td></tr>';
+        $('#logs tbody').append(log);
       });
 
       var styles = [
