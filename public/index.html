@@ -56,7 +56,6 @@
           <h4>Building a safer future together.
             <div id="button-panel">
               <input onclick="clearSource();" type=button value="Clear Source" class="btn btn-success">
-              <input onclick="showSource();" type=button value="Show Source" class="btn btn-regualr">
               <input onclick="issueAlert();" type=button value="Issue Alert" class="btn btn-danger" />
             </div>
           </h4>
@@ -145,13 +144,16 @@
             center: latLng,
             position: latLng,
             map: map,
-            icon: regularMarkerIconURL
-            // strokeColor: "#84A8FC",
-            // strokeOpacity: 0.8,
-            // strokeWeight: 1,
-            // fillColor: "#84A8FC",
-            // fillOpacity: 0.35,
-            // radius: 3
+            icon: {
+            path:google.maps.SymbolPath.CIRCLE,
+            scale:10,
+            strokeColor: "#84A8FC",
+            strokeOpacity: 0.8,
+            strokeWeight: 1,
+            fillColor: "#84A8FC",
+            fillOpacity: 0.35,
+            radius: 3
+          }
            });
 
 
@@ -204,16 +206,6 @@
 
       function clearSource() {
         source.setMap(null);
-      }
-      function showSource(){
-        source = new google.maps.Marker({
-          id: 12345,
-          center: defaultCenter,
-          position: defaultCenter,
-          map: map,
-          draggable: false,
-          icon: sourceMarkerIconURL
-        });
       }
       function issueAlert(){
         console.log('issued alert');
