@@ -39,6 +39,7 @@
     }
     h1{
       margin-left:5%;
+      margin-top:3%;
     }
     .tagline{
       position:relative;
@@ -90,7 +91,7 @@
       var soundSources = {};
       var counter = 0;
       var infowindow;
-      var sourceMarkerIconURL = 'http://i.imgur.com/fyC7e1w.png';
+      var sourceMarkerIconURL = 'http://i.imgur.com/QqNAU5Q.png';
       var regularMarkerIconURL = 'http://i.imgur.com/4EpwdPj.png';
       var defaultCenter = {lat: 40.350229, lng: -74.651085};
       var source1; //debug
@@ -117,12 +118,9 @@
         counter++;
         var image = {
           url: sourceMarkerIconURL,
-          // This marker is 20 pixels wide by 32 pixels high.
           size: new google.maps.Size(64, 64),
-          // The origin for this image is (0, 0).
           origin: new google.maps.Point(0, 0),
-          // The anchor for this image is the base of the flagpole at (0, 32).
-          anchor: new google.maps.Point(0, 0)
+          anchor: new google.maps.Point(32, 32)
         };
         var deleteButton = '<button id="deleteButton" data-id="' + counter + '">Clear</button>';
         var latLng = {lat: parseFloat(data.lat), lng: parseFloat(data.lng)};
@@ -162,11 +160,11 @@
             icon: {
             path:google.maps.SymbolPath.CIRCLE,
             scale:10,
-            strokeColor: "#84A8FC",
-            strokeOpacity: 0.8,
+            strokeColor: "#1656E8",
+            strokeOpacity: 0.9,
             strokeWeight: 1,
-            fillColor: "#84A8FC",
-            fillOpacity: 0.35,
+            fillColor: "#1656E8",
+            fillOpacity: 0.50,
             radius: 3
           }
            });
