@@ -31,6 +31,7 @@
       var infowindow;
       var sourceMarkerIconURL = 'http://i.imgur.com/fyC7e1w.png';
       var regularMarkerIconURL = 'http://i.imgur.com/4EpwdPj.png';
+      var defaultCenter = {lat: 40.350229, lng: -74.651085}
 
 
       var socket = io('/dashboard');
@@ -68,7 +69,7 @@
           position: latLng,
           map: map,
           draggable: false,
-          icon: image
+          icon: sourceMarkerIconURL
         });
 
         google.maps.event.addListener(source, 'rightclick', function () {
@@ -83,10 +84,12 @@
       socket.on('map-update', function(data){
         var latLng = {lat: data.lat, lng: data.lng};
 
-        if (markers[data.id] != undefined)
-          markers[data.id].setCenter(latLng)
-        else
+        if (markers[data.id] != undefined){
+          markers[data.id].setMap(null);
+        }
+        // else{
           markers[data.id] = new google.maps.Marker({
+            id: data.id,
             center: latLng,
             position: latLng,
             map: map,
@@ -97,7 +100,17 @@
             // fillColor: "#84A8FC",
             // fillOpacity: 0.35,
             // radius: 3
+           });
+          var source1 = new google.maps.Marker({
+            id: 12345,
+            center: defaultCenter,
+            position: defaultCenter,
+            map: map,
+            draggable: false,
+            icon: sourceMarkerIconURL
           });
+
+        // }
 
         console.log('received message');
       });
@@ -128,7 +141,7 @@
         infowindow = new google.maps.InfoWindow();
 
         map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: 40.350229, lng: -74.651085},
+          center: defaultCenter,
           zoom: 17,
           styles: styles
         });
@@ -144,7 +157,7 @@
       }
 
       function clearSoure() {
-        source.setMap(null);
+        source[12345].setMap(null);
       }
     </script>
 
