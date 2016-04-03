@@ -4,6 +4,7 @@
     <title>Watchr Server</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
+    <Link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/paper/bootstrap.min.css"></style>
     <style>
     html, body {
       width: 100%;
@@ -12,13 +13,40 @@
       padding: 0;
     }
     #map {
-      height: 100%;
+      height: 60%;
+      width:90%;
+      left:5%;
+
+    }
+    #floating-panel {
+      position: relative;
+      /*top: 20px;*/
+      /*right: 20px;*/
+      bottom:10px;
+      z-index: 10000000;
+      background-color: #fff;
+      padding: 5px;
+      border: 1px solid #999;
+      text-align: center;
+      font-family: 'Roboto','sans-serif';
+      line-height: 30px;
+      padding-left: 10px;
     }
     </style>
   </head>
   <body>
+    <div>
+      <div class="header">
+        <h1>Watchr</h1>
+      </div>
+      <div id="floating-panel">
+        <input onclick="clearSource();" type=button value="Hide Source" class="btn btn-success">
+        <input onclick="showSource();" type=button value="Show Source" class="btn btn-regualr">
+      </div>
+    </div>
 
     <div id="map"></div>
+
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
@@ -40,7 +68,7 @@
       $('form').submit(function(){
         socket.emit('test', $('#m').val());
       $('#m').val('');
-        return false;
+        return false;cla
       });
 
       socket.on('remove-marker', function(ip){
@@ -149,7 +177,15 @@
               soundSources[id].setMap(null);
           };
         });
-        source1 = new google.maps.Marker({
+
+
+      }
+
+      function clearSource() {
+        source.setMap(null);
+      }
+      function showSource(){
+        source = new google.maps.Marker({
           id: 12345,
           center: defaultCenter,
           position: defaultCenter,
@@ -157,12 +193,6 @@
           draggable: false,
           icon: sourceMarkerIconURL
         });
-
-      }
-
-      function clearSource() {
-        console.log(source1);
-        source1.setMap(null);
       }
     </script>
 
