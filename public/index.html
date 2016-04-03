@@ -9,28 +9,40 @@
     html, body {
       width: 100%;
       height: 100%;
-      margin: 0;
-      padding: 0;
     }
     #map {
-      height: 60%;
+      height: 70%;
       width:90%;
       left:5%;
+      border-radius: 7px;
 
     }
-    #floating-panel {
+    .panel1 {
       position: relative;
       /*top: 20px;*/
-      /*right: 20px;*/
       bottom:10px;
       z-index: 10000000;
       background-color: #fff;
-      padding: 5px;
-      border: 1px solid #999;
-      text-align: center;
+      padding-bottom: 5px;
+
+      padding-top: 5px;
+      /*border-top: 1px solid #999;*/
+      text-align: left;
       font-family: 'Roboto','sans-serif';
       line-height: 30px;
-      padding-left: 10px;
+      padding-left: 0px;
+    }
+    #button-panel{
+      position:relative;
+      float: right;
+      right:10.3%;
+    }
+    h1{
+      margin-left:5%;
+    }
+    .tagline{
+      position:relative;
+      left:5.2%;
     }
     </style>
   </head>
@@ -39,10 +51,19 @@
       <div class="header">
         <h1>Watchr</h1>
       </div>
-      <div id="floating-panel">
-        <input onclick="clearSource();" type=button value="Hide Source" class="btn btn-success">
-        <input onclick="showSource();" type=button value="Show Source" class="btn btn-regualr">
+      <div class="panel1">
+        <div class = "tagline">
+          <h4>Building a safer future together.
+            <div id="button-panel">
+              <input onclick="clearSource();" type=button value="Clear Source" class="btn btn-success">
+              <input onclick="showSource();" type=button value="Show Source" class="btn btn-regualr">
+              <input onclick="issueAlert();" type=button value="Issue Alert" class="btn btn-danger" />
+            </div>
+          </h4>
+        </div>
+
       </div>
+
     </div>
 
     <div id="map"></div>
@@ -192,6 +213,13 @@
           map: map,
           draggable: false,
           icon: sourceMarkerIconURL
+        });
+      }
+      function issueAlert(){
+        console.log('issued alert');
+        $.ajax({
+            type: "GET",
+            url: "http://10.8.235.65:3000/evacuate"
         });
       }
     </script>
