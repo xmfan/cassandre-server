@@ -26,7 +26,9 @@
     <script>
       var map;
       var markers = {};
-      var latLng;
+      var soundSources = {};
+      var counter = 0; 
+      var infowindow;
 
       var socket = io('/dashboard');
       $('form').submit(function(){
@@ -34,11 +36,44 @@
       $('#m').val('');
         return false;
       });
+
       socket.on('remove-marker', function(ip){
-        markers[ip].setMap(null);
+        if (markers[ip] != undefined) markers[ip].setMap(null);
       });
+
+      socket.on('noise-update', function(data){
+        console.log('received noise-update:' + data.lat + ' ' + data.lng);
+        counter++; 
+
+        var deleteButton = '<button id="deleteButton" data-id="' + counter + '">Clear</button>';
+        var latLng = {lat: parseFloat(data.lat), lng: parseFloat(data.lng)};
+        var source = new google.maps.Marker({
+          id: counter,
+          position: latLng,
+          map: map,
+          draggable: false,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            strokeColor: '#ff00ff',
+            strokeOpacity: 0.8,
+            strokeWeight: 1,
+            fillColor: '#ff00ff',
+            fillOpacity: 0.35
+          }
+        });
+
+        google.maps.event.addListener(source, 'rightclick', function () {
+          infowindow.setContent(deleteButton);
+          infowindow.open(map, source);
+        });
+        
+        soundSources[counter] = source;
+
+      });
+
       socket.on('map-update', function(msg){
-        latLng = {lat: parseFloat(msg.x), lng: parseFloat(msg.y)};
+        var latLng = {lat: parseFloat(msg.x), lng: parseFloat(msg.y)};
 
         if (markers[msg.id] != undefined)
           markers[msg.id].setCenter(latLng)
@@ -52,10 +87,10 @@
           markers[msg.id] = new google.maps.Circle({
               center: latLng,
               map: map,
-              strokeColor: '#FF0000',
+              strokeColor: '#6600ff',
               strokeOpacity: 0.8,
               strokeWeight: 1,
-              fillColor: '#FF0000',
+              fillColor: '#6600ff',
               fillOpacity: 0.35,
               radius: 100
           });
@@ -86,10 +121,20 @@
       ];
 
       function initMap() {
+        infowindow = new google.maps.InfoWindow();
+
         map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: 40.3503270, lng: -74.6526850},
-          zoom: 15,
+          zoom: 17,
           styles: styles
+        });
+
+        google.maps.event.addListener(infowindow, 'domready', function() {
+          var button = document.getElementById('deleteButton');
+          var id = parseInt(button.getAttribute('data-id'));  
+          button.onclick = function() {
+              soundSources[id].setMap(null);
+          };
         });
 
       }

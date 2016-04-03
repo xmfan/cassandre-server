@@ -26,10 +26,10 @@ var android = io
 			console.log(ip+': '+lat+', ' + lng);
 			dashboard.emit('map-update', {id: ip, lat: lat, lng: lng});
 		});
-    socket.on('alert-noise', function(ip, lat, lng, dB){
-      console.log(ip + ' ' + dB);
-      //var noise = {lat, lng}
-      //dashboard.emit('noise-update', noise);
+    socket.on('alert-noise', function(lat, lng){
+      console.log(lat + lng);
+      var noise = {lat:lat, lng:lng}
+      dashboard.emit('noise-update', noise);
     });
     socket.on('disconnect', function(message){
       console.log(ip);
