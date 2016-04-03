@@ -23,13 +23,13 @@ var android = io
 		console.log('an android device has connected');
 		socket.on('alert-location', function(ip, lat, lng){//alert-noise and alert-location
 			console.log('an android device has submitted an alert');
-			console.log(ip+': '+lng+', ' + lat);
-			dashboard.emit('map-update', {id: ip, lng: lng, lat: lat}); 
+			console.log(ip+': '+lat+', ' + lng);
+			dashboard.emit('map-update', {id: ip, lat: lat, lng: lng});
 		});
-    socket.on('alert-noise', function(ip, dB){
+    socket.on('alert-noise', function(ip, lat, lng, dB){
       console.log(ip + ' ' + dB);
-      //dashboard.emit('map-update', data.position);
-      dashboard.emit('noise-update', {ip: ip, volume: dB});
+      //var noise = {lat, lng}
+      //dashboard.emit('noise-update', noise);
     });
     socket.on('disconnect', function(message){
       console.log(ip);
@@ -39,6 +39,7 @@ var android = io
 	});
 
 // {lng:-74.6526860,lat:40.3503270}
+// event type: alert-evacuate
 
 http.listen(3000, function(){
   console.log('listening on *:3000');
