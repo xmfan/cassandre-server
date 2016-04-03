@@ -42,7 +42,11 @@
       });
 
       socket.on('noise-update', function(data){
-        console.log('received noise-update:' + data.lat + ' ' + data.lng);
+        for (var source in soundSources) {
+          var pos = soundSources[source].getPosition();
+          if ( Math.abs(pos.lat() - data.lat) < 0.00001 && Math.abs(pos.lng() - data.lng) < 0.00001 ) return;
+        }
+
         counter++; 
 
         var deleteButton = '<button id="deleteButton" data-id="' + counter + '">Clear</button>';
@@ -77,13 +81,7 @@
 
         if (markers[msg.id] != undefined)
           markers[msg.id].setCenter(latLng)
-          //markers[msg.id].setPosition(latLng);
         else
-          /*markers[msg.id] = new google.maps.Marker({
-              position: latLng,
-              map: map,
-              draggable: true
-          }); */
           markers[msg.id] = new google.maps.Circle({
               center: latLng,
               map: map,
