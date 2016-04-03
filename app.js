@@ -17,8 +17,8 @@ var dashboard = io
 	});
 
 var bufferObj = {};
-
-var android = io
+var android;
+android = io
 	.of('/android')
 	.on('connection', function(socket){
     var ip;
@@ -64,6 +64,11 @@ var android = io
 			dashboard.emit('remove-marker', ip);
 		});
 	});
+
+app.get('/evacuate', function(req, res) {
+  android.emit('alert-evacuate');
+  res.sendStatus(200);
+});
 
 // {lng:-74.6526860,lat:40.3503270}
 // event type: alert-evacuate
