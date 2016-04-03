@@ -16,20 +16,47 @@ var dashboard = io
 		console.log('a user connected');
 	});
 
+var bufferObj = {};
+
 var android = io
 	.of('/android')
 	.on('connection', function(socket){
     var ip;
 		console.log('an android device has connected');
 		socket.on('alert-location', function(ip, lat, lng){//alert-noise and alert-location
-			console.log('an android device has submitted an alert');
+			//console.log('an android device has submitted an alert');
 			console.log(ip+': '+lat+', ' + lng);
 			dashboard.emit('map-update', {id: ip, lat: lat, lng: lng});
 		});
-    socket.on('alert-noise', function(lat, lng){
-      console.log(lat + lng);
-      var noise = {lat:lat, lng:lng}
-      dashboard.emit('noise-update', noise);
+
+    socket.on('alert-noise', function(ip, lat, lng, dB){
+      bufferObj[ip] = {
+        lat: lat,
+        lng: lng,
+        dB: dB
+      };
+
+      var noise = {
+        lat: 0,
+        lng: 0
+      };
+      var count = 0;
+      for (var ip in bufferObj) {
+        noise.lat += bufferObj[ip].lat;
+        noise.lng += bufferObj[ip].lng;
+        count++;
+      }
+      noise.lat /= count;
+      noise.lng /= count;
+      console.log(noise);
+
+      if (count > 2) {
+        console.log('3 ip in the buffer');
+        dashboard.emit('noise-update', noise);
+        for (var key in bufferObj) {
+          delete(bufferObj[key]);
+        }
+      }
     });
     socket.on('disconnect', function(message){
       console.log(ip);
