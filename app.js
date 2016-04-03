@@ -70,9 +70,6 @@ app.get('/evacuate', function(req, res) {
   res.sendStatus(200);
 });
 
-// {lng:-74.6526860,lat:40.3503270}
-// event type: alert-evacuate
-
 http.listen(3000, function(){
   console.log('listening on *:3000');
 });
