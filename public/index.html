@@ -29,6 +29,8 @@
       var soundSources = {};
       var counter = 0;
       var infowindow;
+      var sourceMarkerIconURL = 'http://i.imgur.com/fyC7e1w.png';
+      var regularMarkerIconURL = 'http://i.imgur.com/4EpwdPj.png';
 
 
       var socket = io('/dashboard');
@@ -51,7 +53,7 @@
 
         counter++;
         var image = {
-          url: 'http://i.imgur.com/fyC7e1w.png',
+          url: sourceMarkerIconURL,
           // This marker is 20 pixels wide by 32 pixels high.
           size: new google.maps.Size(64, 64),
           // The origin for this image is (0, 0).
@@ -84,16 +86,17 @@
         if (markers[data.id] != undefined)
           markers[data.id].setCenter(latLng)
         else
-          markers[data.id] = new google.maps.Circle({
+          markers[data.id] = new google.maps.Marker({
             center: latLng,
             position: latLng,
             map: map,
-            strokeColor: "#84A8FC",
-            strokeOpacity: 0.8,
-            strokeWeight: 1,
-            fillColor: "#84A8FC",
-            fillOpacity: 0.35,
-            radius: 3
+            icon: regularMarkerIconURL
+            // strokeColor: "#84A8FC",
+            // strokeOpacity: 0.8,
+            // strokeWeight: 1,
+            // fillColor: "#84A8FC",
+            // fillOpacity: 0.35,
+            // radius: 3
           });
 
         console.log('received message');
@@ -102,7 +105,7 @@
       var styles = [
         {
           stylers: [
-            { hue: "#FFD278"},
+            { hue: "#84A8FC"},
             { saturation: -20 }
           ]
         },{
@@ -140,8 +143,9 @@
 
       }
 
-      function clearMarkers() {
+      function clearSoure() {
         source.setMap(null);
+        source
       }
     </script>
 
