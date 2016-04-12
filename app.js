@@ -53,6 +53,8 @@ android = io
       if (count > 2) {
         console.log('3 ip in the buffer');
         dashboard.emit('noise-update', noise);
+        //emit coordinates to android
+        android.emit('alert-map', noise);
         for (var key in bufferObj) {
           delete(bufferObj[key]);
         }

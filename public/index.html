@@ -1,34 +1,108 @@
 <!doctype html>
 <html>
   <head>
-    <title>Cassandre Server</title>
+    <title>Watchr Server</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
+    <Link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/paper/bootstrap.min.css"></style>
     <style>
     html, body {
       width: 100%;
       height: 100%;
-      margin: 0;
-      padding: 0;
     }
     #map {
-      height: 100%;
+      height: 70%;
+      width:90%;
+      left:5%;
+      border-radius: 7px;
+
+    }
+    .panel1 {
+      position: relative;
+      /*top: 20px;*/
+      bottom:10px;
+      z-index: 10000000;
+      background-color: #fff;
+      padding-bottom: 5px;
+
+      padding-top: 5px;
+      /*border-top: 1px solid #999;*/
+      text-align: left;
+      font-family: 'Roboto','sans-serif';
+      line-height: 30px;
+      padding-left: 0px;
+    }
+    #button-panel{
+      position:relative;
+      float: right;
+      right:10.3%;
+    }
+    h1{
+      margin-left:5%;
+      margin-top:3%;
+    }
+    .tagline{
+      position:relative;
+      left:5.2%;
+    }
+
+    #logs {
+      margin-top: 10px;
+    }
+
+    table {
+      display: block;
+      height: 500px;
+      overflow-y: scroll;
     }
     </style>
   </head>
   <body>
+    <div>
+      <div class="header">
+        <h1>Watchr</h1>
+      </div>
+      <div class="panel1">
+        <div class = "tagline">
+          <h4>Building a safer future together.
+            <div id="button-panel">
+              <input onclick="clearSource();" type=button value="Clear Source" class="btn btn-primary">
+              <input onclick="issueAlert();" type=button value="Issue Alert" class="btn btn-danger" />
+            </div>
+          </h4>
+        </div>
+
+      </div>
+
+    </div>
 
     <div id="map"></div>
 
+    <div id="logs" class="col-xs-12">
+      <table class="table table-striped">
+        <thead>
+          <h4>Logs</h4>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWwRebpis1VIpthnXhsr8VF5mFCUhwrGg&callback=initMap" async defer></script>
     <script>
       var map;
       var markers = {};
       var soundSources = {};
       var counter = 0;
       var infowindow;
+      var sourceMarkerIconURL = 'http://i.imgur.com/QqNAU5Q.png';
+      var regularMarkerIconURL = 'http://i.imgur.com/4EpwdPj.png';
+      var defaultCenter = {lat: 40.350229, lng: -74.651085};
+      var source1; //debug
+      var source;
+
 
       var socket = io('/dashboard');
       $('form').submit(function(){
@@ -42,65 +116,75 @@
       });
 
       socket.on('noise-update', function(data){
-        console.log('noise-update');
         for (var source in soundSources) {
           var pos = soundSources[source].getPosition();
           if ( Math.abs(pos.lat() - data.lat) < 0.0001 && Math.abs(pos.lng() - data.lng) < 0.0001 ) return;
         }
 
         counter++;
-
+        var image = {
+          url: sourceMarkerIconURL,
+          size: new google.maps.Size(64, 64),
+          origin: new google.maps.Point(0, 0),
+          anchor: new google.maps.Point(32, 32)
+        };
         var deleteButton = '<button id="deleteButton" data-id="' + counter + '">Clear</button>';
         var latLng = {lat: parseFloat(data.lat), lng: parseFloat(data.lng)};
-        var source = new google.maps.Marker({
+        source = new google.maps.Marker({
           id: counter,
           position: latLng,
           map: map,
           draggable: false,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 10,
-            strokeColor: '#ff00ff',
-            strokeOpacity: 0.8,
-            strokeWeight: 1,
-            fillColor: '#ff00ff',
-            fillOpacity: 0.35
-          }
+          icon: sourceMarkerIconURL
         });
 
         google.maps.event.addListener(source, 'rightclick', function () {
           infowindow.setContent(deleteButton);
           infowindow.open(map, source);
+
         });
 
         soundSources[counter] = source;
+
+        var log = '<tr><td>Suspicious sound '+counter+' detected at: '+data.lng+', '+data.lat+'</td></tr>';
+        $('#logs tbody').append(log);
 
       });
 
       socket.on('map-update', function(data){
         var latLng = {lat: data.lat, lng: data.lng};
 
-        if (markers[data.id] != undefined)
-          markers[data.id].setCenter(latLng)
-        else
-          markers[data.id] = new google.maps.Circle({
-              center: latLng,
-              map: map,
-              strokeColor: '#6600ff',
-              strokeOpacity: 0.8,
-              strokeWeight: 1,
-              fillColor: '#6600ff',
-              fillOpacity: 0.35,
-              radius: 3
-          });
+        if (markers[data.id] != undefined){
+          markers[data.id].setMap(null);
+        }
+        // else{
+          markers[data.id] = new google.maps.Marker({
+            id: data.id,
+            center: latLng,
+            position: latLng,
+            map: map,
+            icon: {
+            path:google.maps.SymbolPath.CIRCLE,
+            scale:10,
+            strokeColor: "#1656E8",
+            strokeOpacity: 0.9,
+            strokeWeight: 1,
+            fillColor: "#1656E8",
+            fillOpacity: 0.50,
+            radius: 3
+          }
+           });
 
-        console.log('received message');
+
+        // }
+        var log = '<tr><td>Location updated for '+data.id+' to '+data.lat+', '+data.lng+'</td></tr>';
+        $('#logs tbody').append(log);
       });
 
       var styles = [
         {
           stylers: [
-            { hue: "#0080ff" },
+            { hue: "#84A8FC"},
             { saturation: -20 }
           ]
         },{
@@ -123,7 +207,7 @@
         infowindow = new google.maps.InfoWindow();
 
         map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: 40.3503270, lng: -74.6526850},
+          center: defaultCenter,
           zoom: 17,
           styles: styles
         });
@@ -136,9 +220,21 @@
           };
         });
 
+
+      }
+
+      function clearSource() {
+        soundSources[counter].setMap(null);
+      }
+      function issueAlert(){
+        console.log('issued alert');
+        $.ajax({
+            type: "GET",
+            url: "http://10.8.235.65:3000/evacuate"
+        });
       }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWwRebpis1VIpthnXhsr8VF5mFCUhwrGg&callback=initMap" async defer></script>
+
 
   </body>
 </html>
