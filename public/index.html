@@ -71,9 +71,7 @@
             </div>
           </h4>
         </div>
-
       </div>
-
     </div>
 
     <div id="map"></div>
@@ -92,6 +90,7 @@
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWwRebpis1VIpthnXhsr8VF5mFCUhwrGg&callback=initMap" async defer></script>
     <script>
+      // TODO: reorganize into multiple files
       var map;
       var markers = {};
       var soundSources = {};
@@ -102,7 +101,6 @@
       var defaultCenter = {lat: 40.350229, lng: -74.651085};
       var source1; //debug
       var source;
-
 
       var socket = io('/dashboard');
       $('form').submit(function(){
