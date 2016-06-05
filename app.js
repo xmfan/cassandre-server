@@ -1,45 +1,68 @@
+'use strict';
+
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+// HashMap<Timestamp, Alert>
+var deviceMap = {};
+
+// TODO: move classes to other files
+// Device coordinates which destroys map[key] after 3 seconds
+var Alert = function(lat, lng, dB, map, key) {
+	this.lat = lat;
+	this.lng = lng;
+	this.dB = dB;
+	this.timerID = (function() {
+		return setTimeout(selfDestruct, 3000);
+
+		function selfDestruct() {
+			delete map[key];
+		}
+	})();
+};
+
+var SoundSource = function(lat, lng) {
+	this.lat = lat;
+  this.lng = lng;
+};
+
 var dashboard = io
 	.of('/dashboard')
-	.on('connection', function(socket){
+	.on('connection', function(socket) {
 		console.log('Dashboard: Connection Established');
 	});
 
-var bufferObj = {};
 var android;
 android = io
 	.of('/android')
 	.on('connection', function(socket) {
-    var ip;
 		console.log('Android: Connection Established');
 
-    // Periodically update connected devices' location on the Dashboard
+		var ip;
+		// Periodically update connected devices' location on the Dashboard
 		socket.on('alert-location', function(ip, lat, lng) {
-			console.log(ip + ': ' + lat + ', ' + lng);
+			ip = ip;
 			dashboard.emit('map-update', {id: ip, lat: lat, lng: lng});
 		});
 
     // TODO: Rewrite Algorithm
-    // Suspicious noise is detected and the server is alerted
-    socket.on('alert-noise', function(ip, lat, lng, dB) {
-      bufferObj[ip] = {
-        lat: lat,
-        lng: lng,
-        dB: dB
-      };
+		// Alert the server when a suspicious noise is detected
+    socket.on('alert-noise', function(lat, lng, dB) {
+			function getCurrentTimestamp() {
+				return new Date().getTime();
+			}
 
-      var noise = {
-        lat: 0,
-        lng: 0
-      };
+			var key = getCurrentTimestamp();
+			deviceMap[key] = new Alert(lat, lng, dB, deviceMap, key);
+
+			/*
+      var noise = new SoundSource(0, 0);
 
       var count = 0;
-      for (var ip in bufferObj) {
-        noise.lat += bufferObj[ip].lat;
-        noise.lng += bufferObj[ip].lng;
+      for (var ip in deviceMap) {
+        noise.lat += deviceMap[ip].lat;
+        noise.lng += deviceMap[ip].lng;
         count++;
       }
       noise.lat /= count;
@@ -51,11 +74,13 @@ android = io
         dashboard.emit('noise-update', noise);
         // emit coordinates to android
         android.emit('alert-map', noise);
-        for (var key in bufferObj) {
-          delete(bufferObj[key]);
+        for (var key in deviceMap) {
+          delete(deviceMap[key]);
         }
       }
+			*/
     });
+
 
     socket.on('disconnect', function(message) {
       console.log(ip);
