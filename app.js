@@ -40,11 +40,10 @@ const android = io
       alertMap.set(ip, new Alert(lat, lng, dB, ip, alertMap));
 
       if (!tracing && alertMap.size > 2) {
-        const source = traceSource(alertMap); // source is a Coordinate object
+        const source = getSourceCoordinates(alertMap);
         console.log('[SOURCE] ' + source.lat + ' ' + source.lng);
 
         dashboard.emit('noise-update', source);
-        // emit coordinates to android
         android.emit('alert-map', source);
       }
     });
@@ -65,7 +64,7 @@ function ascendingDecibel(a, b) {
 
 // traces sound source by weighted coordinate average
 // assume latitude and longitude can be added
-function traceSource(map) {
+function getSourceCoordinates(map) {
   tracing = true;
   // shallow copy of self-destructing alerts in map of alerts
   var alerts = [];
