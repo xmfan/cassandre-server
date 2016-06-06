@@ -106,6 +106,7 @@ app.get('/android-simulator', function(req, res) {
 
 // Send evacuation instructions to all connected devices
 app.get('/evacuate', function(req, res) {
+  console.log('[EVACUATE] Notice sent');
   android.emit('alert-evacuate');
   res.sendStatus(200);
 });

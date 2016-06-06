@@ -150,6 +150,7 @@
       });
 
       socket.on('map-update', function(data){
+        console.log(data);
         var latLng = {lat: data.lat, lng: data.lng};
 
         if (markers[data.id] != undefined){
@@ -223,12 +224,12 @@
 
       function clearSource() {
         soundSources[counter].setMap(null);
+        counter--;
       }
       function issueAlert(){
-        console.log('issued alert');
         $.ajax({
             type: "GET",
-            url: "http://10.8.235.65:3000/evacuate"
+            url: "/evacuate"
         });
       }
     </script>

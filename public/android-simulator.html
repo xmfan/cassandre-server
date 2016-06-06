@@ -1,34 +1,71 @@
 <!doctype html>
 <html>
   <head>
-  	<title>Android Simulator</title>
+    <title>Android Simulator</title>
   </head>
   <body>
-  	<form action="">
-      id:<input id="id" autocomplete="off" />
-      x:<input id="x" autocomplete="off" />
-      y:<input id="y" autocomplete="off" />
-      r:<input id="r" autocomplete="off" />
+    <form label="Device 1" id="alert-location1" action="">
+      ip:<input id="ip1" autocomplete="off" />
+      lat:<input id="lat1" autocomplete="off" />
+      lng:<input id="lng1" autocomplete="off" />
+      dB:<input id="dB1" autocomplete="off" />
       <button>Send</button>
     </form>
-  	<script src="/socket.io/socket.io.js"></script>
-  	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-  	<script>
-      // TODO: update alert-location and alert-noise
-  		var socket1 = io('/android');
-      var socket2 = io('/android');
-      var socket3 = io('/android');
+    <form label="Device 2" id="alert-location2" action="">
+      ip:<input id="ip2" autocomplete="off" />
+      lat:<input id="lat2" autocomplete="off" />
+      lng:<input id="lng2" autocomplete="off" />
+      dB:<input id="dB2" autocomplete="off" />
+      <button>Send</button>
+    </form>
+    <form label="Device 3" id="alert-location3" action="">
+      ip:<input id="ip3" autocomplete="off" />
+      lat:<input id="lat3" autocomplete="off" />
+      lng:<input id="lng3" autocomplete="off" />
+      dB:<input id="dB3" autocomplete="off" />
+      <button>Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $('#alert-location1').submit(function(){
+        var socket = io('/android');
+        var data = {
+          ip: $('#ip1').val(),
+          lat: parseFloat($('#lat1').val()),
+          lng: parseFloat($('#lng1').val())
+        };
+        socket.emit('alert-location', data.ip, data.lat, data.lng);
+        data.dB = parseFloat($('#dB1').val());
+        if (data.dB) socket.emit('alert-noise', data.ip, data.lat, data.lng, data.dB);
+        return false;
+      });
 
-  		/*$('form').submit(function(){
-      		socket.emit('alert', { x: $('#x').val(),
-                                  y: $('#y').val(),
-                                  id: $('#id').val(),
-                                  r: $('#r').val()
-                                });
-      		console.log('in form submits');
-    		// $('#x').val(''); $('#y').val('');
-      		return false;
-    	});*/
+      $('#alert-location2').submit(function(){
+        var socket = io('/android');
+        var data = {
+          ip: $('#ip2').val(),
+          lat: parseFloat($('#lat2').val()),
+          lng: parseFloat($('#lng2').val())
+        };
+        socket.emit('alert-location', data.ip, data.lat, data.lng);
+        data.dB = parseFloat($('#dB2').val());
+        if (data.dB) socket.emit('alert-noise', data.ip, data.lat, data.lng, data.dB);
+        return false;
+      });
+
+      $('#alert-location3').submit(function(){
+        var socket = io('/android');
+        var data = {
+          ip: $('#ip3').val(),
+          lat: parseFloat($('#lat3').val()),
+          lng: parseFloat($('#lng3').val())
+        };
+        socket.emit('alert-location', data.ip, data.lat, data.lng);
+        data.dB = parseFloat($('#dB3').val());
+        if (data.dB) socket.emit('alert-noise', data.ip, data.lat, data.lng, data.dB);
+        return false;
+      });
 
       // Location on Princeton University Department of Electrical Engineering
       const Coordinate = function(lat, lng) {
@@ -40,6 +77,10 @@
       const E = new Coordinate(40.3499977524355, -74.65117525309324);
       const F = new Coordinate(40.3508429912706, -74.65160205960274);
 
+      var socket1 = io('/android');
+      var socket2 = io('/android');
+      var socket3 = io('/android');
+
       // set location for 3 devices
       socket1.emit('alert-location', '192.168.1.1', D.lat, D.lng);
       socket2.emit('alert-location', '192.168.1.2', E.lat, E.lng);
@@ -49,6 +90,6 @@
       socket1.emit('alert-noise', '192.168.1.1', D.lat, D.lng, 60);
       socket2.emit('alert-noise', '192.168.1.2', E.lat, E.lng, 70);
       socket3.emit('alert-noise', '192.168.1.3', F.lat, F.lng, 80);
-  	</script>
+    </script>
   </body>
 </html>
