@@ -3,30 +3,9 @@
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+var Coordinate = require('./classes/Coordinate.js');
+var Alert = require('./classes/Alert.js');
 var tracing = false;
-
-const Coordinate = function(lat, lng) {
-  this.lat = lat;
-  this.lng = lng;
-  this.addToThis = function(coord, weight) {
-    this.lat += weight * coord.lat;
-    this.lng += weight * coord.lng;
-  }
-};
-
-// Stored in alertMap, Alert destroys itself after >=3 seconds
-const Alert = function(lat, lng, dB, key, map) {
-  this.coord = new Coordinate(lat, lng);
-  this.dB = dB;
-  this.ip = key; // denormalized for faster shallow copy of map entries
-  this.timerID = (function() {
-    return setTimeout(selfDestruct, 3000);
-
-    function selfDestruct() {
-      map.delete(key);
-    }
-  })();
-};
 
 // HashMap{ip => Alert}
 const alertMap = new Map();
@@ -106,6 +85,7 @@ function traceSource(map) {
   for (var k=0; k<weights.length; k++) {
     source.addToThis(alerts[k].coord, weights[k] / weightSum);
   }
+  tracing = false;
   return source;
 }
 
