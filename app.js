@@ -56,7 +56,7 @@ const android = io
 
       // TODO: prevent redundant analysis
       if (alertMap.size > 1) {
-        var source = traceSource(alertMap);
+        const source = traceSource(alertMap);
         // TODO: log source to database
         dashboard.emit('noise-update', source);
         // emit coordinates of suspicious sound to android
@@ -125,7 +125,7 @@ function traceSource(map) {
   // shallow copy of self-destructing alerts in map of alerts
   // TODO: replace this with fail-safe query by timestamp key
   var alerts = new Array();
-  for (var alert of map.entries()) {
+  for (var alert of map.values()) {
     alerts.push(alert);
   }
 
@@ -165,8 +165,8 @@ function traceSource(map) {
       // use the maximum of the derivative of the distance function,
       // with respect to the angle between vectors from SS to a and from SS to b.
       // let somelat and somelng represent the coordinates of SS
-      var somelat, somelng;
-      const source = new Coordinate(somelat, somelng);
+      var somelat, somelng, someWatt;
+      const source = new SoundSource(somelat, somelng, someWatt);
       possibleSources.push(source);
     }
   }
