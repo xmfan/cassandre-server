@@ -3,8 +3,8 @@
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-var Coordinate = require('./classes/Coordinate.js');
-var Alert = require('./classes/Alert.js');
+const Coordinate = require('./classes/Coordinate.js');
+const Alert = require('./classes/Alert.js');
 var tracing = false;
 
 // HashMap{ip => Alert}
@@ -13,25 +13,29 @@ const alertMap = new Map();
 // Socket Namespace: dashboard
 const dashboard = io
   .of('/dashboard')
-  .on('connection', function(socket){
+  .on('connection', function(socket)
+  {
     console.log('[DASHBOARD] Connection Established');
   });
 
 // Socket Namespace: android
 const android = io
   .of('/android')
-  .on('connection', function(socket) {
+  .on('connection', function(socket)
+  {
     var id;
 
     // Periodically update connected devices' location on the Dashboard
-    socket.on('alert-location', function(ip, lat, lng) {
+    socket.on('alert-location', function(ip, lat, lng)
+    {
       if (!id) id = ip;
       console.log('[LOCATION] ' + ip + ': ' + lat + ', ' + lng);
       dashboard.emit('map-update', {id: ip, lat: lat, lng: lng});
     });
 
     // Suspicious noise is detected and the server is alerted
-    socket.on('alert-noise', function(ip, lat, lng, dB) {
+    socket.on('alert-noise', function(ip, lat, lng, dB)
+    {
       console.log('[NOISE] ' + ip + ': ' + lat + ', ' + lng);
       alertMap.set(ip, new Alert(lat, lng, dB, ip, alertMap));
 
@@ -45,10 +49,12 @@ const android = io
       }
     });
 
-    socket.on('disconnect', function(message) {
+    socket.on('disconnect', function(message)
+    {
       console.log('[ANDROID] Connection Closed for ' + id);
       dashboard.emit('remove-marker', id);
     });
+
   });
 
 function ascendingDecibel(a, b) {
@@ -88,6 +94,8 @@ function traceSource(map) {
   tracing = false;
   return source;
 }
+
+
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/public/index.html');
