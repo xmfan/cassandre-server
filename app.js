@@ -1,69 +1,114 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+'use strict';
 
-var dashboard = io
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+var tracing = false;
+
+const Coordinate = function(lat, lng) {
+  this.lat = lat;
+  this.lng = lng;
+  this.addToThis = function(coord, weight) {
+    this.lat += weight * coord.lat;
+    this.lng += weight * coord.lng;
+  }
+};
+
+// Stored in alertMap, Alert destroys itself after >=3 seconds
+const Alert = function(lat, lng, dB, key, map) {
+  this.coord = new Coordinate(lat, lng);
+  this.dB = dB;
+  this.ip = key; // denormalized for faster shallow copy of map entries
+  this.timerID = (function() {
+    return setTimeout(selfDestruct, 3000);
+
+    function selfDestruct() {
+      map.delete(key);
+    }
+  })();
+};
+
+// HashMap{ip => Alert}
+const alertMap = new Map();
+
+// Socket Namespace: dashboard
+const dashboard = io
   .of('/dashboard')
   .on('connection', function(socket){
-    console.log('Dashboard: Connection Established');
+    console.log('[DASHBOARD] Connection Established');
   });
 
-var bufferObj = {};
-var android;
-android = io
+// Socket Namespace: android
+const android = io
   .of('/android')
   .on('connection', function(socket) {
     var id;
+
     // Periodically update connected devices' location on the Dashboard
     socket.on('alert-location', function(ip, lat, lng) {
-      id = ip;
+      if (!id) id = ip;
       console.log('[LOCATION] ' + ip + ': ' + lat + ', ' + lng);
       dashboard.emit('map-update', {id: ip, lat: lat, lng: lng});
     });
 
-    // TODO: Rewrite Algorithm
     // Suspicious noise is detected and the server is alerted
     socket.on('alert-noise', function(ip, lat, lng, dB) {
-      bufferObj[ip] = {
-        lat: lat,
-        lng: lng,
-        dB: dB
-      };
+      console.log('[NOISE] ' + ip + ': ' + lat + ', ' + lng);
+      alertMap.set(ip, new Alert(lat, lng, dB, ip, alertMap));
 
-      var noise = {
-        lat: 0,
-        lng: 0
-      };
+      if (!tracing && alertMap.size > 2) {
+        const source = traceSource(alertMap); // source is a Coordinate object
+        console.log('[SOURCE] ' + source.lat + ' ' + source.lng);
 
-      var count = 0;
-      for (var ip in bufferObj) {
-        noise.lat += bufferObj[ip].lat;
-        noise.lng += bufferObj[ip].lng;
-        count++;
-      }
-      noise.lat /= count;
-      noise.lng /= count;
-      console.log(noise);
-
-      if (count > 2) {
-        console.log('3 ip in the buffer');
-        dashboard.emit('noise-update', noise);
+        dashboard.emit('noise-update', source);
         // emit coordinates to android
-        android.emit('alert-map', noise);
-        for (var key in bufferObj) {
-          delete(bufferObj[key]);
-        }
+        android.emit('alert-map', source);
       }
     });
 
     socket.on('disconnect', function(message) {
-      console.log(ip);
-      console.log('Android: Connection Closed');
-      dashboard.emit('remove-marker', ip);
+      console.log('[ANDROID] Connection Closed for ' + id);
+      dashboard.emit('remove-marker', id);
     });
   });
 
-// TODO: Put in Seperate files
+function ascendingDecibel(a, b) {
+  if (a.dB < b.dB) return -1;
+  if (a.dB > b.dB) return 1;
+  return 0;
+}
+
+// traces sound source by weighted coordinate average
+// assume latitude and longitude can be added
+function traceSource(map) {
+  tracing = true;
+  // shallow copy of self-destructing alerts in map of alerts
+  var alerts = [];
+  for (const alert of map.values()) {
+    alerts.push(alert);
+    map.delete(alert.ip);
+  }
+  alerts.sort(ascendingDecibel);
+
+  // Distance from the source doubles  <=> intensity drops by 6 dB
+  // ie: distance between source and 80 dB = 2*distance between source and 74 dB
+  // set all ratios relative to furthest alert
+  var weights = [1];
+  var weightSum = 1;
+  for (var i=1; i<alerts.length; i++) {
+    // if alerts[0] is 1 distance away, then alerts[i] is 'ratio' distance away
+    const ratio = 1 / ((alerts[i].dB - alerts[0].dB) / 3);
+    weights[i] = ratio;
+    weightSum += ratio;
+  }
+
+  var source = new Coordinate(0, 0);
+  for (var k=0; k<weights.length; k++) {
+    source.addToThis(alerts[k].coord, weights[k] / weightSum);
+  }
+  return source;
+}
+
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/public/index.html');
 });
