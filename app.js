@@ -138,7 +138,7 @@ function traceSource(map) {
 	//   2) the lower the timestamp, the closer the alert's coordinate is to the sound source (applying Interaural Time Difference)
 	//   3) near no reflections nor reverberation in open spaces (applying Inverse Square Law for Sound)
 	//   4) inteference of noise does not affect sound speed
-	//   5) the open space is at the sea level at the equator of a WGS84 spheroid-shaped Earth
+	//   5) the open space is at the sea level of a WGS84 spheroid-shaped Earth
 
 
 	// Step 1. Convert intensity from dB to W/m^2
@@ -161,7 +161,11 @@ function traceSource(map) {
 			const dist = distance(a.coord, b.coord); // distance between a and b, in meters
 
 			// Step 3. Apply Inverse Square Law
-
+			// minimize dist by moving a's coordinates along the circumference of the circle centered at the sound source (SS)
+			// use the maximum of the derivative of the distance function,
+			// with respect to the angle between vectors from SS to a and from SS to b.
+			// let somelat and somelng represent the coordinates of SS
+			var somelat, somelng;
 			const source = new Coordinate(somelat, somelng);
 			possibleSources.push(source);
 		}
