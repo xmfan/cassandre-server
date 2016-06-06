@@ -3,24 +3,23 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 var dashboard = io
-	.of('/dashboard')
-	.on('connection', function(socket){
-		console.log('Dashboard: Connection Established');
-	});
+  .of('/dashboard')
+  .on('connection', function(socket){
+    console.log('Dashboard: Connection Established');
+  });
 
 var bufferObj = {};
 var android;
 android = io
-	.of('/android')
-	.on('connection', function(socket) {
-    var ip;
-		console.log('Android: Connection Established');
-
+  .of('/android')
+  .on('connection', function(socket) {
+    var id;
     // Periodically update connected devices' location on the Dashboard
-		socket.on('alert-location', function(ip, lat, lng) {
-			console.log(ip + ': ' + lat + ', ' + lng);
-			dashboard.emit('map-update', {id: ip, lat: lat, lng: lng});
-		});
+    socket.on('alert-location', function(ip, lat, lng) {
+      id = ip;
+      console.log('[LOCATION] ' + ip + ': ' + lat + ', ' + lng);
+      dashboard.emit('map-update', {id: ip, lat: lat, lng: lng});
+    });
 
     // TODO: Rewrite Algorithm
     // Suspicious noise is detected and the server is alerted
@@ -59,10 +58,10 @@ android = io
 
     socket.on('disconnect', function(message) {
       console.log(ip);
-			console.log('Android: Connection Closed');
-			dashboard.emit('remove-marker', ip);
-		});
-	});
+      console.log('Android: Connection Closed');
+      dashboard.emit('remove-marker', ip);
+    });
+  });
 
 // TODO: Put in Seperate files
 app.get('/', function(req, res) {

@@ -15,8 +15,11 @@
   	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
   	<script>
       // TODO: update alert-location and alert-noise
-  		var socket = io('/android');
-  		$('form').submit(function(){
+  		var socket1 = io('/android');
+      var socket2 = io('/android');
+      var socket3 = io('/android');
+
+  		/*$('form').submit(function(){
       		socket.emit('alert', { x: $('#x').val(),
                                   y: $('#y').val(),
                                   id: $('#id').val(),
@@ -25,7 +28,17 @@
       		console.log('in form submits');
     		// $('#x').val(''); $('#y').val('');
       		return false;
-    	});
+    	});*/
+
+      // set location for 3 devices
+      socket1.emit('alert-location', '192.168.1.1', 40.350816, -74.651593);
+      socket2.emit('alert-location', '192.168.1.2', 40.350807, -74.650386);
+      socket3.emit('alert-location', '192.168.1.3', 40.349958, -74.651147);
+
+      // 3 devices detect noise
+      socket1.emit('alert-noise', '192.168.1.1', 40.350816, -74.651593, 80);
+      socket2.emit('alert-noise', '192.168.1.2', 40.350807, -74.650386, 60);
+      socket3.emit('alert-noise', '192.168.1.3', 40.349958, -74.651147, 70);
   	</script>
   </body>
 </html>
