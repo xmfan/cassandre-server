@@ -5,7 +5,7 @@ module.exports = function Alert(lat, lng, dB, key, map) {
   this.dB = dB;
   this.ip = key; // denormalized for faster shallow copy of map entries
   this.timerID = (function() {
-    return setTimeout(selfDestruct, 3000);
+    return setTimeout(selfDestruct, 500);
 
     function selfDestruct() {
       map.delete(key);
